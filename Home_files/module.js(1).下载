@@ -1,0 +1,599 @@
+$(document).ready(function(){
+	// Set initial values
+	setLocationInformation();
+
+
+	// Open store locator
+		$(document).delegate('.js-openStoreLocator','click', function(){
+			OpenStoreLocator();
+		});
+		$(document).delegate('.js-openStoreLocator input','click', function(){
+			OpenStoreLocator();
+		});
+
+		function OpenStoreLocator(){
+			if($('.store-locator').hasClass('open')){
+				$('.store-locator').removeClass('open');
+			}else{
+				var DisplayViewID = 1;
+				var BrowserGeo = $('#browser--geo').val();
+				var UserFavoriteStoreID = $('#user--favorite-StoreID').val();
+				var UserFavoriteStoreName = $('#user--favorite-StoreCity').val();
+				
+				// Look for if favorite store is already set
+				if(UserFavoriteStoreID != ''){
+					$('.StoreID').filter(function(){
+						return this.value == UserFavoriteStoreID;
+					}).each(function(){
+						$(this).closest('.store-locator__container__store-list__item').addClass('active');
+					});
+				}
+				
+				
+				if( (BrowserGeo == '') || (UserFavoriteStoreID == '') || (UserFavoriteStoreName == '') ){
+					DisplayViewID = 2;
+				}else{
+					// Dynamic result message display
+					$('.store-locator__container__dynamic-result-msg .store-name').text(UserFavoriteStoreName);
+				}
+				
+				$('.store-locator__container').addClass('hidden');
+				$('.store-locator__container[data-view-id=' + DisplayViewID + ']').removeClass('hidden');
+				$('.store-locator__container[data-view-id=' + DisplayViewID + ']').addClass('open');
+
+				$('.store-locator').addClass('open');
+			}		
+		}
+
+
+	// Switch to store locator
+		$('.switch-to-store-locator').click(function(){
+			$('.store-locator__container').removeClass('open');
+			
+			setTimeout(function(){
+				$('.store-locator__container').addClass('hidden');
+				$('.store-locator__container.store-locator__container--search').removeClass('hidden');
+				
+				setTimeout(function(){
+					$('.store-locator__container.store-locator__container--search').addClass('open');
+				}, 50);
+			}, 250);
+		});
+	
+	
+	// Clicking outside store locator will close the dialog
+		$('.store-locator__mask').click(function(){
+			$('.store-locator').removeClass('open');
+			$('.store-locator').css('z-index','10');
+
+			setTimeout(function(){
+				$('.store-locator').attr('style','');
+			}, 250);
+		});
+	
+	
+	// Buttons to close the dialog
+		$('.close-store-locator').click(function(){
+			$('.store-locator').removeClass('open');
+			$('.store-locator').css('z-index','10');
+
+			setTimeout(function(){
+				$('.store-locator').attr('style','');
+			}, 250);
+		});
+		
+	
+	// Set favorite store
+		$(document).delegate('.set-favorite-store', 'click', function() {
+			var listItem = '.store-locator__container__store-list__item';
+			$(listItem).removeClass('active');
+			$(this).closest(listItem).addClass('active');
+			
+			/* Cookies to set
+			1. Store Name 			== 	StoreCity
+			2. Store ID				== 	storeID
+			3. Store Postal Code	==	StorePostalCode
+			4. Store State			== 	StoreState
+			*/
+
+			var StoreCity = 		$(this).closest(listItem).find('.StoreName').val();
+			var StoreID = 			$(this).closest(listItem).find('.StoreID').val();
+			var StorePostalCode =	$(this).closest(listItem).find('.StorePostalCode').val();
+			var StoreAddress =		$(this).closest(listItem).find('.StoreAddress').val();
+			var StoreState = 		$(this).closest(listItem).find('.StoreState').val();
+			var StoreDistance = 	$(this).closest(listItem).find('.StoreDistance').val();
+
+
+			setCookie('StoreCity', StoreCity, 365);
+			setCookie('store_city', StoreCity, 365);
+			setCookie('StoreName', StoreCity, 365);
+
+			setCookie('storeID', StoreID, 365);
+			setCookie('store_code', StoreID, 365);
+			setCookie('store_code_2383', StoreID, 365);
+
+			setCookie('StorePostalCode', StorePostalCode, 365);
+			setCookie('postal_code', StorePostalCode, 365);
+
+			setCookie('StoreState', StoreState, 365);
+			setCookie('store_state', StoreState, 365);
+
+			setCookie('StoreAddress', StoreAddress, 365);
+
+
+			// Update store locator controls
+			$('#user--favorite-StoreID').val(StoreID);
+			$('#user--favorite-StoreCity').val(StoreCity);
+			
+			// Input controls
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreName').val(StoreCity);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreID').val(StoreID);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StorePostalCode').val(StorePostalCode);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreState').val(StoreState);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreDistance').val(StoreDistance);
+			
+			// Display text
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__store-name').text(StoreCity);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__store-address').text(StoreAddress);
+			$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__distance').text(StoreDistance);
+			
+			// Dynamic result message display
+			$('.store-locator__container__dynamic-result-msg .store-name').text(StoreCity);
+			
+
+			// Cookies have been set, close store locator
+			$('.store-locator').removeClass('open');
+			$('.store-locator').css('z-index','10');
+
+			setTimeout(function(){
+				$('.store-locator').attr('style','');
+			}, 250);
+
+			// Set Dynamic Location Information
+			setLocationInformation('true');
+		});
+
+
+	// setup before functions
+	var typingTimer;
+
+	// on keyup, start the countdown
+		$('#store-search').keyup(function(){
+			clearTimeout(typingTimer);
+			if ($('#store-search').val()) {
+				typingTimer = setTimeout(getLocations('Input'), 500);
+			}
+		});
+
+
+	// Fetch closest store if applicable
+		if(getCookie('StorePostalCode') != ''){
+			getLocations('StorePostal');
+		}
+
+
+    // Try HTML5 geolocation.
+	    if (
+	    	(navigator.geolocation) && 
+	    	(getCookie('StorePostalCode') == '') &&
+	    	(getCookie('userLatitude') == '') &&
+	    	(getCookie('userLongitude') == '')
+	    ){
+	      	
+			setCookie('userLatitude', 'AskedUser', 365); // will prevent additional geo asks
+			setCookie('userLongitude','AskedUser', 365); // will prevent additional geo asks
+
+	      	navigator.geolocation.getCurrentPosition(function(position) {
+  
+			  	// Update search criteria to use browsers detected location
+				var positionLat = position.coords.latitude;
+				var positionLon = position.coords.longitude;
+
+				$('#store-search').val(positionLat + ',' + positionLon);
+				getLocations('GeoLocation');
+				
+				setCookie('userLatitude', positionLat, 365);
+				setCookie('userLongitude', positionLon, 365);
+	      	});
+	    }
+
+
+	// Prevent page reload on return (auto form submit)
+		$(document).on('keydown', '#store-search', function(event) {
+		    if (event.key == 'Enter') {
+		        event.preventDefault();
+		    }
+		});
+
+});
+
+
+function setLocationInformation(rebuildCircular){
+	// Set initial values
+	var browserGeo 				= 	getCookie('StorePostalCode');
+	var userStoreID 			= 	getCookie('storeID');
+	var userStoreCity 			= 	getCookie('StoreCity');
+	var userStoreAddress 		=	getCookie('StoreAddress');
+	var userStorePostalCode 	=	getCookie('StorePostalCode');
+	var userStoreState			=	getCookie('StoreState');
+
+	$('#browser--geo').val(browserGeo);
+	$('#user--favorite-StoreID').val(userStoreID);
+	$('#user--favorite-StoreCity').val(userStoreCity);
+	
+
+	// Populate site content based on cookie values
+	$('.js--setStoreName').text(userStoreAddress); 									// Text Display
+	$('.js--setStoreName').val(userStoreAddress); 									// Form Input
+	$('.js--setStoreName').attr('data-val', userStoreAddress); 						// Angular Form Input
+
+
+	$('.js--setStoreID').val(userStoreID); 											// Form Input
+	$('.js--setStoreID').attr('data-val', userStoreID); 							// Angular Form Input
+
+	if(userStoreAddress != ""){
+		$('.js--dynamicStoreInfo--CTA').addClass('hidden');
+		$('.js--dynamicStoreInfo').removeClass('hidden');	
+	}
+
+
+	if(rebuildCircular == 'true'){
+		buildWeeklyAd();
+	}
+}
+
+
+$('#circ_div').each(function(){
+	var URL = window.location.href;
+	if(URL.indexOf("?") != -1){
+		// Get values in querystring
+		var grabQueryString = URL.split('?');
+
+		// get individual values
+		var grabValues = grabQueryString[1].split('&');
+
+		// Loop through each value set
+		$.each(grabValues, function(index, value){
+			console.log(index + ' | ' + value);
+			// Get value name and value
+			var grabvValue = value.split('=');
+			// Identify values
+			var CookieExpire = '; domain=.ctownsupermarkets.com; expires=Thu, 18 Dec 2030 12:00:00 UTC';
+			if(grabvValue[0] == 'store_code'){
+				setCookie('storeID', grabvValue[1], 365);
+				setCookie('store_code', grabvValue[1], 365);
+				console.log('Set Store ID cookies: ' + grabvValue[1]);
+			}else if(grabvValue[0] == 'store_zip'){
+				setCookie('StorePostalCode', grabvValue[1], 365);
+				setCookie('postal_code', grabvValue[1], 365);
+				console.log('Set postal code cookies: ' + grabvValue[1]);
+			}else if(grabvValue[0] == 'store_city'){ document.cookie = 'StoreCity=' + grabvValue[1] + CookieExpire;
+				setCookie('StoreCity', grabvValue[1], 365);
+				setCookie('store_city', grabvValue[1], 365);
+				setCookie('StoreName', grabvValue[1], 365);
+			}else if(grabvValue[0] == 'store_state'){ document.cookie = 'StoreState=' + grabvValue[1] + CookieExpire;
+				setCookie('StoreState', grabvValue[1], 365);
+				setCookie('store_state', grabvValue[1], 365);
+			}
+		});
+
+		buildWeeklyAd('true');
+	}else{
+		buildWeeklyAd('true');
+	}
+});
+
+function buildWeeklyAd(overrideTemp){
+
+	// overrideTemp is set when the user sets a favorite/my store.
+	// overrideTemp can only occur on a redirect.
+
+	var ViewTempCircular 	= getParameterByName('ViewTempCircular');
+	var TempStoreID			= getParameterByName('StoreID');
+
+	var flippContainerId 	= 'circ_div';
+	var PostalCode 			= getCookie('StorePostalCode');
+	var StoreCode 			= getCookie('store_code');
+	var flipLocation 		= 'ctown';
+	var flipLinkPath		= 'ctown';
+
+	var flipQueryParameters = 'store_code=' + StoreCode;
+
+	if(ViewTempCircular == 'true' && TempStoreID != '' && overrideTemp == 'true'){
+		flipQueryParameters = 'store_code=' + TempStoreID;
+	}
+
+	console.log('flipQueryParameters: ' + flipQueryParameters);
+
+
+	$('#' + flippContainerId).each(function(){
+		if(document.domain.indexOf('ctownsupermarkets') >= 0){
+		}else if(document.domain.indexOf('bravosupermarkets') >= 0){
+			flipLocation = 'bravosupermarket';
+			flipLinkPath = 'bravo'
+		}
+
+		$.getScript('//circular.' + flipLinkPath + 'supermarkets.com/hosted_services/iframe.js').done(function(script, textStatus) {
+			wishabi.hostedservices.iframe.decorate(
+		    	flippContainerId,
+		    	flipLocation,
+		    	wishabi.hostedservices.iframe.Sizing.Page, {
+			    	minHeight: 600,
+			      	initialHeight: 600,
+			      	extraPadding: 60,
+			      	queryParameters: flipQueryParameters
+			    }
+		  	);
+		});
+
+
+
+		// Build ADA Link to Flipp
+		var hasBuilt = false;
+		var FlippURL = '';
+
+		setTimeout(function(){
+			FlippURL = $('#flipp-iframe').attr('src');	
+
+			console.log('FlippURL: ' + FlippURL);
+			if(FlippURL != ''){
+				$('#circ_div').parent().append('<div id="flipp--link" class="text-right / mt-4"><a href="' + FlippURL + '" style="text-align: right;">View Screen Reader Friendly Weekly Circular</a></div>');
+				
+				hasBuilt = true;
+			}
+		}, 1000);
+		setTimeout(function(){
+			FlippURL = $('#flipp-iframe').attr('src');
+			
+			if(hasBuilt == false && FlippURL != ''){
+				$('#circ_div').parent().append('<div id="flipp--link" class="text-right / mt-4"><a href="' + FlippURL + '" style="text-align: right;">View Screen Reader Friendly Weekly Circular</a></div>');
+				
+				hasBuilt = true;
+			}
+		}, 2000);
+		setTimeout(function(){
+			FlippURL = $('#flipp-iframe').attr('src');
+			
+			if(hasBuilt == false && FlippURL != ''){
+				$('#circ_div').parent().append('<div id="flipp--link" class="text-right / mt-4"><a href="' + FlippURL + '" style="text-align: right;">View Screen Reader Friendly Weekly Circular</a></div>');
+			}
+		}, 3000);
+
+
+		
+	});
+}
+
+
+function getLocations(SearchType){
+	// default + Fallback
+	var query = $('#store-search').val();
+	var dynamicSearch = false;
+
+	// Search based on text search
+	if(SearchType == 'Input'){
+		query = $('#store-search').val();
+	}
+	// Search based on saved StorePostal cookie
+	else if(SearchType == 'StorePostal'){
+		query = getCookie('StorePostalCode');
+		dynamicSearch = true;
+	}
+	// Search based on browser location detection
+	else if(SearchType == 'GeoLocation'){
+		query = $('#store-search').val();
+		dynamicSearch = true;
+	}
+
+	$('.store-locator__container--search .store-locator__container__store-list__item').remove();
+	$('.store-locator__container__loading-dialog').removeClass('hidden');
+	$('.store-search--message').addClass('hidden');
+
+	var queryPath = '/DesktopModules/MyStore/Api/MyStore/GeoSearch/?';
+	var queryPath = queryPath + 'portalID=' + encodeURIComponent($('.store-locator').data('portal'));
+	var queryPath = queryPath + '&location=' + encodeURIComponent(query);
+
+	$.get(queryPath, function (data) {
+
+		var storeResponse = JSON.parse(JSON.stringify(data)).response;
+
+		// Get each attribute
+		var entityID = -1;
+		var buildStore = '';
+		// Remove original search results
+		$('.store-locator__container--search .store-locator__container__store-list__item').remove();
+		
+		// General store information
+		$('.store-search--message').addClass('hidden');
+		if(storeResponse.entities.length == 0 && !dynamicSearch){
+			var rspMsg = 'No stores found in this area, please adjust your search.';
+			$('.store-search--message').text(rspMsg);
+			$('.store-search--message').removeClass('hidden');
+		}
+		if(storeResponse.entities.length == 0 && dynamicSearch){
+			$('#store-search').val('');
+		}
+
+		$.each(storeResponse.entities, function(index, value){
+			entityID = entityID + 1;
+
+			var addressLine1 = value.address.line1;
+			var addressCity = value.address.city;
+			var addressRegion = value.address.region;
+			var addressPostalCode = value.address.postalCode;
+			var storeID = value.meta.id;
+			var storeDistance = storeResponse.distances[entityID].distanceMiles.toFixed(2);
+
+			var fullAddress = addressLine1 + ' ' + addressCity + ', ' + addressRegion + ' ' + addressPostalCode;
+
+			var yextStorePageLink = value.landingPageUrl;
+			var flippCircularLink = '/weekly-ad?ViewTempCircular=true&StoreID=' + storeID;
+
+			// Set active store from response if set storeID cookie matches
+			var activeStore = '';
+
+			// If we are doing the search due to dynamicSearch
+			var displayFirst = false;
+			if((dynamicSearch == true) && (entityID == 0)){
+				displayFirst = true;	
+			}
+
+			if((storeID == getCookie('storeID')) || (displayFirst == true)){
+				activeStore = 'active';
+
+				// Update view 1 elements 
+				// Input controls
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreName').val(addressCity);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreID').val(storeID);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreAddress').val(fullAddress);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StorePostalCode').val(addressPostalCode);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreState').val(addressRegion);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list .StoreDistance').val(storeDistance);
+				
+				// Display text
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__store-name').text(addressCity);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__store-address').text(addressLine1);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__details__distance').text(storeDistance + ' miles away');
+				
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__cta__link--yext').attr('href',yextStorePageLink);
+				$('.store-locator__container[data-view-id=1] .store-locator__container__store-list__item__cta__link--flipp').attr('href',flippCircularLink);
+
+				// Dynamic result message display
+				$('.store-locator__container__dynamic-result-msg .store-name').text(addressCity);
+
+				if(displayFirst == true){
+					$('#store-search').val(addressCity);
+				}
+				
+				activeStore = '';
+			}				
+
+			buildStore = '<div class="store-locator__container__store-list__item ' + activeStore + '">';
+			buildStore = buildStore + '<input type="hidden" class="StoreName" value="' + addressCity + '">';
+			buildStore = buildStore + '<input type="hidden" class="StoreID" value="' + storeID + '">';
+			buildStore = buildStore + '<input type="hidden" class="StoreAddress" value="' + fullAddress + '">';
+			buildStore = buildStore + '<input type="hidden" class="StorePostalCode" value="' + addressPostalCode + '">';
+			buildStore = buildStore + '<input type="hidden" class="StoreState" value="' + addressRegion + '">';
+			buildStore = buildStore + '<input type="hidden" class="StoreDistance" value="' + storeDistance + ' miles away">';
+
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__details">';
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__details__store-name">';
+			buildStore = buildStore + addressCity + '</div>';
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__details__store-address">';
+			buildStore = buildStore + addressLine1 + '</div>';		
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__details__distance">';
+			buildStore = buildStore + storeDistance + ' miles away';
+			buildStore = buildStore + '</div>';
+			buildStore = buildStore + '</div>';
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__cta">';
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__cta__icon"></div>';
+			buildStore = buildStore + '<div class="store-locator__container__store-list__item__cta__link / link link--small / set-favorite-store">';
+			buildStore = buildStore + 'Set as my store';
+			buildStore = buildStore + '</div>';
+			buildStore = buildStore + '<a href="' + yextStorePageLink + '" class="store-locator__container__store-list__item__cta__link / link link--small link--muted" target="_blank">';
+			buildStore = buildStore + 'Store details';
+			buildStore = buildStore + '</a>';
+			buildStore = buildStore + '<span class="store-locator__container__store-list__item__cta__link / link link--small link--muted"> | </span>';
+			buildStore = buildStore + '<a href="' + flippCircularLink + '" class="store-locator__container__store-list__item__cta__link / link link--small link--muted" target="_blank">';
+			buildStore = buildStore + 'Circular';
+			buildStore = buildStore + '</a>';
+
+			buildStore = buildStore + '</div>';
+			buildStore = buildStore + '</div>';
+
+			$('.store-locator__container--search .store-locator__container__store-search').append(buildStore);
+			
+			// Limit search results to 4 records
+			if(entityID == 3){
+				return false;
+			}
+		});
+
+		// After response from API, display list again
+		$('.store-locator__container__store-list').removeClass('hidden');
+		$('.store-locator__container__loading-dialog').addClass('hidden');
+	});
+}
+
+
+function setCookie(cname, cvalue, exdays) {
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+	var expires = "expires="+d.toUTCString();
+	var targetDomain 			= 'domain=.' + document.domain;
+	var targetDomainCircular 	= 'domain=circular.' + document.domain;
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/" +  ";" + targetDomain;
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/" +  ";" + targetDomainCircular;
+}
+
+
+function getCookie(cname) {
+	var name = cname + "=";
+	var ca = document.cookie.split(';');
+	for(var i = 0; i < ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) == ' ') {
+			c = c.substring(1);
+		}
+		if (c.indexOf(name) == 0) {
+			return c.substring(name.length, c.length);
+		}
+	}
+	return "";
+}
+
+
+// Google Places API
+	var placeSearch, autocomplete;
+	function initAutocomplete() {
+	    // Create the autocomplete object, restricting the search predictions to
+	    // geographical location types.
+	    autocomplete = new google.maps.places.Autocomplete(
+	    	document.getElementById('store-search'), {
+	    		types: ['geocode']
+	    	});
+
+	    // Avoid paying for data that you don't need by restricting the set of
+	    // place fields that are returned to just the address components.
+	    autocomplete.setFields(['address_component']);
+
+	    // When the user selects an address from the drop-down, populate the
+	    // address fields in the form.
+	    autocomplete.addListener('place_changed', fillInAddress);
+	}
+
+
+function fillInAddress() {
+	getLocations('Input');
+}
+
+
+// Bias the autocomplete object to the user's geographical location,
+// as supplied by the browser's 'navigator.geolocation' object.
+	function geolocate() {
+	  	/*if (navigator.geolocation) {
+	  		navigator.geolocation.getCurrentPosition(function(position) {
+	  			var geolocation = {
+	  				lat: position.coords.latitude,
+	  				lng: position.coords.longitude
+	  			};
+	  			var circle = new google.maps.Circle({
+	  				center: geolocation,
+	  				radius: position.coords.accuracy
+	  			});
+	  			autocomplete.setBounds(circle.getBounds());
+	  		});
+	  	}*/
+	}
+
+
+// Get Querystring Parameters
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}

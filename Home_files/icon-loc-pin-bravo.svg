@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="66px" viewBox="0 0 48 66" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Shape Copy</title>
+    <g id="Homepage-&amp;-Mobile" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.1Bravo" transform="translate(-912.000000, -1455.000000)" fill="#094FA3" fill-rule="nonzero">
+            <g id="Group-4" transform="translate(-2.000000, 1016.000000)">
+                <path d="M938,439 C924.766329,439 914,449.722693 914,462.902599 C914,479.259276 935.477649,503.271832 936.392079,504.286068 C937.250983,505.238815 938.75057,505.237139 939.607921,504.286068 C940.522351,503.271832 962,479.259276 962,462.902599 C962,449.722693 951.233542,439 938,439 Z M938.000064,475 C931.383127,475 926,469.616802 926,462.999936 C926,456.383069 931.383256,451 938.000064,451 C944.616873,451 950,456.383198 950,463.000064 C950,469.616931 944.616873,475 938.000064,475 Z" id="Shape-Copy"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,158 @@
+@charset "UTF-8";
+#TPGBanner #TPG-Manage-Banners .alert,
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .alert {
+  position: fixed;
+  top: 0;
+  right: 15px;
+  max-width: 300px;
+  border-radius: 0;
+}
+
+#TPGBanner {
+  background-color: #FCF8F2;
+  position: relative;
+}
+#TPGBanner .owl-carousel {
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+  height: auto !important;
+}
+#TPGBanner .owl-carousel .owl-nav {
+  position: absolute;
+  right: 15px;
+  bottom: 0px;
+  margin: 0px;
+}
+#TPGBanner .owl-carousel .owl-nav .owl-prev span,
+#TPGBanner .owl-carousel .owl-nav .owl-next span {
+  width: 30px;
+  height: 30px;
+  display: block;
+  text-align: center;
+  background-color: white;
+  line-height: 27px;
+}
+#TPGBanner .owl-carousel .owl-nav .owl-prev span:hover,
+#TPGBanner .owl-carousel .owl-nav .owl-next span:hover {
+  color: #000;
+}
+#TPGBanner .owl-carousel .owl-nav .owl-prev:hover span,
+#TPGBanner .owl-carousel .owl-nav .owl-next:hover span {
+  color: #000;
+}
+#TPGBanner .owl-carousel .owl-item .item a .image-mobile,
+#TPGBanner .owl-carousel .owl-item .item span .image-mobile {
+  display: none;
+}
+@media (max-width: 768px) {
+  #TPGBanner .owl-carousel .owl-item .item.hasMobileImage a .image-desktop,
+#TPGBanner .owl-carousel .owl-item .item.hasMobileImage span .image-desktop {
+    display: none;
+  }
+  #TPGBanner .owl-carousel .owl-item .item.hasMobileImage a .image-mobile,
+#TPGBanner .owl-carousel .owl-item .item.hasMobileImage span .image-mobile {
+    display: block;
+  }
+}
+
+.skin[data-name=Home] #TPGBanner .owl-carousel .owl-nav {
+  right: auto;
+  left: 15px;
+}
+
+.DnnModule-TenPoundGorillaBanners {
+  max-width: 1300px;
+  margin: 60px auto;
+  padding: 0px 30px;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group .dnnLabel {
+  float: none;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  text-align: left;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group table {
+  width: 100%;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group table tr td {
+  padding-bottom: 5px;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group table tr td input {
+  vertical-align: middle;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group table tr td label {
+  vertical-align: middle;
+  margin: 0px 0px 0px 5px;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group .urlControl {
+  float: none;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group .urlControl .urlControlFile > div {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group .urlControl .urlControlFile > div input {
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  margin-right: 15px;
+}
+.DnnModule-TenPoundGorillaBanners #TPG-Manage-Banners .form-group .urlControl .dnnClear br {
+  display: none;
+}
+.DnnModule-TenPoundGorillaBanners .card {
+  border-radius: 0 !important;
+}
+.DnnModule-TenPoundGorillaBanners .card-header {
+  padding: 0.75rem 2.5rem 0.75rem 1.25rem;
+  cursor: pointer;
+  position: relative;
+}
+.DnnModule-TenPoundGorillaBanners .card-header:after {
+  position: absolute;
+  right: 15px;
+  top: 13px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  opacity: 0.5;
+  font-family: "Font Awesome 5 Free";
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  content: "";
+  -webkit-transition: all 0.25s;
+  -moz-transition: all 0.25s;
+  -o-transition: all 0.25s;
+  transition: all 0.25s;
+  behavior: url(-ms-transform.htc);
+  -moz-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+}
+.DnnModule-TenPoundGorillaBanners .nav.nav-tabs {
+  margin: 0px;
+}
+.DnnModule-TenPoundGorillaBanners .nav.nav-tabs li {
+  padding: 8px 16px;
+  margin-right: 10px;
+}
+
+.gj-modal {
+  display: none !important;
+}
+
+.datepicker td,
+.datepicker th {
+  font-size: 11px;
+}
+
+/*# sourceMappingURL=module.css.map */

@@ -1,0 +1,57 @@
+function confirmDelete() {
+	return confirm('Are you sure you want to delete this item?');
+}
+
+// Custom JS
+$(document).ready(function () {
+	// Only use Simple Mode (No advanced controls - Just an Image)
+	$('#TPG-Manage-Banners').addClass('mode--simple');
+
+
+	var ActiveTab = "";
+	if((ActiveTab === undefined) || (ActiveTab === '')){
+		$('.nav-tabs #General-tab a').tab('show');
+		$('.nav-tabs #General-tab').addClass('active');
+		$('.tab-content #General').addClass('in');
+	}else{
+		$('.nav-tabs ' + ActiveTab + '-tab a').tab('show');
+		$('.nav-tabs ' + ActiveTab + '-tab').addClass('active');
+		$('.tab-content #' + ActiveTab).addClass('in');
+	}	
+
+	$('.card-header').click(function(){
+		console.log('toggle card body');
+		$('+ .card-body',this).slideToggle();
+	});	
+});
+
+
+
+
+
+
+// EXAMPLE TO CALL onSubmitHasError 
+$('body').delegate('.js-validateRequired', 'click', function(){
+	var HasError = false;
+	$('.dnnFormRequired').each(function(index){
+		var RequiredFieldValue = $(this).closest('.form-group').find('.form-control').val();
+		if((RequiredFieldValue == '') || (RequiredFieldValue == 0)){
+			HasError = true;
+		}
+	});
+	if(HasError == true){
+		var ReturnError = "One or more form fields are empty. Please ensure all required form fields are filled out.";
+
+		var OutputError = '';
+		OutputError = OutputError + '<div class="alert alert-danger" role="alert">'
+		OutputError = OutputError + '<div class="message">' + ReturnError + '</div>'
+		OutputError = OutputError + '</div>'
+
+		$('#TPG-Manage-Banners').append(OutputError);
+
+		setTimeout(function(){
+			$('.alert').remove();
+		}, 8000);
+
+	}
+});
